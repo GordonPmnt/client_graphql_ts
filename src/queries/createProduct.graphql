@@ -1,0 +1,18 @@
+mutation createProduct($product: ProductCreateInput!) {
+  productCreate(product: $product) {
+    ... on Product {
+      id
+      name
+      price
+      taxRate
+      category {
+        name
+      }
+    }
+    ... on ProductError {
+      id
+      message
+      type
+    }
+  }
+}

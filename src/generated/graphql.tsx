@@ -32,6 +32,16 @@ export enum ProductSize {
   Large = 'LARGE'
 }
 
+export type ProductCreateInput = {
+  name: Scalars['String'];
+  price: Scalars['Int'];
+  taxRate?: Maybe<Scalars['Int']>;
+  description?: Maybe<Scalars['String']>;
+  size?: Maybe<Scalars['ID']>;
+  fabricationDate?: Maybe<Scalars['Date']>;
+  category?: Maybe<Scalars['ID']>;
+};
+
 export type Product = {
   __typename?: 'Product';
   id: Scalars['ID'];
@@ -50,11 +60,54 @@ export type Query = {
   productList?: Maybe<Array<Maybe<Product>>>;
 };
 
+export enum ErrorType {
+  ServerError = 'SERVER_ERROR'
+}
+
+export type ProductError = {
+  __typename?: 'ProductError';
+  id: Scalars['ID'];
+  message?: Maybe<Scalars['String']>;
+  type?: Maybe<ErrorType>;
+};
+
+export type ProductResult = ProductError | Product;
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  productCreate?: Maybe<ProductResult>;
+};
+
+
+export type MutationProductCreateArgs = {
+  product: ProductCreateInput;
+};
+
 export enum CacheControlScope {
   Public = 'PUBLIC',
   Private = 'PRIVATE'
 }
 
+
+export type CreateProductMutationVariables = Exact<{
+  product: ProductCreateInput;
+}>;
+
+
+export type CreateProductMutation = (
+  { __typename?: 'Mutation' }
+  & { productCreate?: Maybe<(
+    { __typename?: 'ProductError' }
+    & Pick<ProductError, 'id' | 'message' | 'type'>
+  ) | (
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'name' | 'price' | 'taxRate'>
+    & { category?: Maybe<(
+      { __typename?: 'ProductCategory' }
+      & Pick<ProductCategory, 'name'>
+    )> }
+  )> }
+);
 
 export type ProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -73,6 +126,51 @@ export type ProductsQuery = (
 );
 
 
+export const CreateProductDocument = gql`
+    mutation createProduct($product: ProductCreateInput!) {
+  productCreate(product: $product) {
+    ... on Product {
+      id
+      name
+      price
+      taxRate
+      category {
+        name
+      }
+    }
+    ... on ProductError {
+      id
+      message
+      type
+    }
+  }
+}
+    `;
+export type CreateProductMutationFn = Apollo.MutationFunction<CreateProductMutation, CreateProductMutationVariables>;
+
+/**
+ * __useCreateProductMutation__
+ *
+ * To run a mutation, you first call `useCreateProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProductMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProductMutation, { data, loading, error }] = useCreateProductMutation({
+ *   variables: {
+ *      product: // value for 'product'
+ *   },
+ * });
+ */
+export function useCreateProductMutation(baseOptions?: Apollo.MutationHookOptions<CreateProductMutation, CreateProductMutationVariables>) {
+        return Apollo.useMutation<CreateProductMutation, CreateProductMutationVariables>(CreateProductDocument, baseOptions);
+      }
+export type CreateProductMutationHookResult = ReturnType<typeof useCreateProductMutation>;
+export type CreateProductMutationResult = Apollo.MutationResult<CreateProductMutation>;
+export type CreateProductMutationOptions = Apollo.BaseMutationOptions<CreateProductMutation, CreateProductMutationVariables>;
 export const ProductsDocument = gql`
     query Products {
   hello
