@@ -1,0 +1,15 @@
+query Products {
+  hello
+  productList {
+    id
+    name
+    price
+    size
+    fabricationDate
+    category {
+      id
+      name
+      description
+    }
+  }
+}
